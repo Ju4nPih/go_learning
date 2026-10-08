@@ -1,0 +1,15 @@
+2026-03-14T08:23:11Z INFO auth user login ok user_id=8821 dur_ms=42
+2026-03-14T08:23:12Z ERROR db connection refused host=pg-01 retries=3
+2026-03-14T08:23:15Z WARN cache eviction rate high pct=91.5
+2026-03-14T08:24:02Z INFO auth user login ok user_id=1042 dur_ms=38
+2026-03-14T08:24:19Z DEBUG http request served path=/api/v1/health dur_ms=2
+esta linea esta rota a proposito
+2026-03-14T09:01:44Z ERROR db deadlock detected table=accounts retries=1
+2026-03-14T09:02:03Z INFO worker job finished job_id=771 dur_ms=15204
+2026-03-14T09:15:30Z FATAL db replica lost host=pg-02 retries=0
+2026-03-14T09:16:00Z WARN http slow response path=/api/v1/report dur_ms=8891
+2026-03-14T10:00:01Z INFO worker job started job_id=772
+2026-03-14T10:00:02Z TRENCH nivel inexistente a proposito
+2026-03-14T10:04:55Z ERROR auth token expired user_id=8821 retries=0
+2026-03-14T10:30:12Z INFO cache warm complete entries=48211 dur_ms=331
+2026-03-14T11:45:09Z DEBUG http request served path=/api/v1/ping dur_ms=1
