@@ -33,7 +33,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strings"
+	"time"
 )
 
 // ===========================================================================
@@ -206,6 +209,79 @@ import (
 //           que ser `comparable` y no `any`.
 
 // ===========================================================================
+type Level int
+
+const (
+	DEBUG Level = iota
+	INFO
+	WARN
+	ERROR
+	FATAL
+)
+
+const UTC_TIMEZONE = -5
+
+var ErrUnknownLevel = errors.New("Nivel de log desconocido")
+
+func (l Level) String() string {
+	switch l {
+	case DEBUG:
+		return "DEBUG"
+	case INFO:
+		return "INFO"
+	case WARN:
+		return "WARN"
+	case ERROR:
+		return "ERROR"
+	case FATAL:
+		return "FATAL"
+	default:
+		return fmt.Sprintf("LEVEL(%d)", l)
+	}
+}
+
+func ParseLevel(l string) (Level, error) {
+	switch strings.ToUpper(l) {
+	case "DEBUG":
+		return DEBUG, nil
+	case "INFO":
+		return INFO, nil
+	case "WARN":
+		return WARN, nil
+	case "ERROR":
+		return ERROR, nil
+	case "FATAL":
+		return FATAL, nil
+	default:
+		return -1, ErrUnknownLevel
+	}
+}
+
+type Entry struct {
+	Timestamp time.Time
+	Level     Level
+	Component string
+	Message   string
+	Fields    map[string]string
+}
+
+func (entry Entry) String() string {
+
+	if !entry.Timestamp.IsZero() {
+		entry.Timestamp = entry.Timestamp.Local()
+	}
+
+	return fmt.Sprintf("%s | %s | %s | %s | %s",
+		entry.Timestamp.Format("15:04:05"),
+		entry.Level.String(),
+		entry.Component,
+		entry.Message,
+		entry.Fields["dur_ms"])
+}
+
+// TODO 1.3: `type Entry struct` con: Timestamp time.Time, Level Level,
+//           Component string, Message string, Fields map[string]string.
+//           Que Entry también implemente Stringer.
 
 func main() {
 	fmt.Println("empezá por la etapa 1")

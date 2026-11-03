@@ -13,3 +13,10 @@ esta linea esta rota a proposito
 2026-03-14T10:04:55Z ERROR auth token expired user_id=8821 retries=0
 2026-03-14T10:30:12Z INFO cache warm complete entries=48211 dur_ms=331
 2026-03-14T11:45:09Z DEBUG http request served path=/api/v1/ping dur_ms=1
+
+
+
+11:45:09 | DEBUG | http | request served | duration 1 ms
+
+
+Time -> Time
