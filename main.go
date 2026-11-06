@@ -16,7 +16,7 @@
 //           retornos con nombre · variables · zero values · conversión de
 //           tipos · inferencia · constantes · iota · Stringer
 //  Etapa 2  if con statement corto · switch · switch sin condición ·
-//           defer · defer apilados · errores · tipos de error
+//           defer · defer apilados · Errores · tipos de Error
 //  Etapa 3  arrays · slices · len/cap · nil slices · make · append ·
 //           slices de slices · range · maps · map literals · mutar maps
 //  Etapa 4  punteros · structs · punteros a structs · struct literals ·
@@ -35,6 +35,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -44,7 +45,7 @@ import (
 // ===========================================================================
 //
 // Formato de una línea:
-//   2026-03-14T08:23:11Z ERROR db connection refused host=pg-01 retries=3
+//   2026-03-14T08:23:11Z Error db connection refused host=pg-01 retries=3
 //   └─ timestamp        └─ nivel
 //                             └─ componente
 //                                 └─ mensaje libre
@@ -52,10 +53,10 @@ import (
 //
 // TODO 1.1: definí `type Level int` con constantes usando iota, en orden:
 //           Debug, Info, Warn, Error, Fatal.
-//           Que Level implemente fmt.Stringer devolviendo "DEBUG", "INFO", etc.
+//           Que Level implemente fmt.Stringer devolviendo "Debug", "Info", etc.
 //           Para un nivel desconocido: "LEVEL(7)" con el número.
 //
-// TODO 1.2: `func ParseLevel(s string) (Level, error)` — el retorno múltiple
+// TODO 1.2: `func ParseLevel(s string) (Level, Error)` — el retorno múltiple
 //           clásico. Case-insensitive.
 //
 // TODO 1.3: `type Entry struct` con: Timestamp time.Time, Level Level,
@@ -71,22 +72,22 @@ import (
 // después comprobalo. Es distinto de escribir en él.
 
 // ===========================================================================
-// ETAPA 2 — Parseo, control de flujo y errores
+// ETAPA 2 — Parseo, control de flujo y Errores
 // ===========================================================================
 //
-// TODO 2.1: `type ParseError struct { Line int; Raw string; Err error }`
+// TODO 2.1: `type ParseError struct { Line int; Raw string; Err Error }`
 //           con método Error() y Unwrap(). Errores centinela:
 //           ErrMalformed, ErrUnknownLevel.
 //
-// TODO 2.2: `func ParseLine(n int, raw string) (Entry, error)`
+// TODO 2.2: `func ParseLine(n int, raw string) (Entry, Error)`
 //           - `if` con statement corto: `if parts := strings.Fields(raw); len(parts) < 4 {`
 //           - `switch` para clasificar el nivel
 //           - `switch` SIN condición (switch { case x > 10: ... }) para
 //             clasificar la duración en "rápido/normal/lento". Es el reemplazo
 //             idiomático de la cadena if/else-if.
 //
-// TODO 2.3: `func ParseFile(path string) ([]Entry, []error)` — devuelve las
-//           entradas válidas Y los errores, no se detiene en el primero.
+// TODO 2.3: `func ParseFile(path string) ([]Entry, []Error)` — devuelve las
+//           entradas válidas Y los Errores, no se detiene en el primero.
 //           Usá `defer f.Close()`.
 //           Meté DOS defer apilados e imprimí algo en cada uno: tenés que
 //           ver con tus ojos que salen en orden inverso (LIFO).
@@ -159,7 +160,7 @@ import (
 //           tema que más confunde de Go y vale que lo toques ahora.
 //
 // TODO 5.3: `func Describe(v any)` con un TYPE SWITCH que maneje
-//           Entry, Level, []Entry, string, int, error y default.
+//           Entry, Level, []Entry, string, int, Error y default.
 //           (`any` es alias de `interface{}` — la interfaz vacía.)
 //
 // TODO 5.4: cambiá ParseFile para que reciba un `io.Reader` en vez de una
@@ -171,7 +172,7 @@ import (
 // ETAPA 6 — Concurrencia
 // ===========================================================================
 //
-// TODO 6.1: `func ParseConcurrent(paths []string) ([]Entry, []error)`
+// TODO 6.1: `func ParseConcurrent(paths []string) ([]Entry, []Error)`
 //           Una goroutine por archivo, resultados por channel, sync.WaitGroup
 //           para esperar a todas.
 //           Duplicá testdata/app.log en 4 archivos para tener con qué probar.
@@ -184,7 +185,7 @@ import (
 //           pasa si cerrás dos veces? ¿si escribís en uno cerrado?
 //           Probá las dos y mirá el panic.
 //
-// TODO 6.4: un agregador con `select` sobre tres canales: entradas, errores
+// TODO 6.4: un agregador con `select` sobre tres canales: entradas, Errores
 //           y un `done chan struct{}` para cortar.
 //           Agregá un `case <-time.After(2*time.Second)` como timeout.
 //
@@ -212,11 +213,11 @@ import (
 type Level int
 
 const (
-	DEBUG Level = iota
-	INFO
-	WARN
-	ERROR
-	FATAL
+	Debug Level = iota
+	Info
+	Warn
+	Error
+	Fatal
 )
 
 const UTC_TIMEZONE = -5
@@ -225,15 +226,15 @@ var ErrUnknownLevel = errors.New("Nivel de log desconocido")
 
 func (l Level) String() string {
 	switch l {
-	case DEBUG:
+	case Debug:
 		return "DEBUG"
-	case INFO:
+	case Info:
 		return "INFO"
-	case WARN:
+	case Warn:
 		return "WARN"
-	case ERROR:
+	case Error:
 		return "ERROR"
-	case FATAL:
+	case Fatal:
 		return "FATAL"
 	default:
 		return fmt.Sprintf("LEVEL(%d)", l)
@@ -243,15 +244,15 @@ func (l Level) String() string {
 func ParseLevel(l string) (Level, error) {
 	switch strings.ToUpper(l) {
 	case "DEBUG":
-		return DEBUG, nil
+		return Debug, nil
 	case "INFO":
-		return INFO, nil
+		return Info, nil
 	case "WARN":
-		return WARN, nil
+		return Warn, nil
 	case "ERROR":
-		return ERROR, nil
+		return Error, nil
 	case "FATAL":
-		return FATAL, nil
+		return Fatal, nil
 	default:
 		return -1, ErrUnknownLevel
 	}
@@ -279,9 +280,19 @@ func (entry Entry) String() string {
 		entry.Fields["dur_ms"])
 }
 
-// TODO 1.3: `type Entry struct` con: Timestamp time.Time, Level Level,
-//           Component string, Message string, Fields map[string]string.
-//           Que Entry también implemente Stringer.
+func (e Entry) DurationMS() (ms int, ok bool) {
+
+	ms_string, ok := e.Fields["dur_ms"]
+	if !ok {
+		return
+	}
+	ms, err := strconv.Atoi(ms_string)
+
+	if err != nil {
+		ok = false
+	}
+	return
+}
 
 func main() {
 	fmt.Println("empezá por la etapa 1")
@@ -291,10 +302,10 @@ func main() {
 // CHECKLIST FINAL
 // ===========================================================================
 //
-//   [ ] Compila sin warnings: go vet ./...
+//   [ ] Compila sin Warnings: go vet ./...
 //   [ ] staticcheck ./... sale limpio
 //   [ ] go run -race . no reporta nada
-//   [ ] Ningún error ignorado con _
+//   [ ] Ningún Error ignorado con _
 //   [ ] Cada receptor puntero vs valor es una decisión, no un default
 //   [ ] Podés explicar en voz alta: interfaz nil vs interfaz con valor nil
 //   [ ] Podés explicar por qué append sobre un slice nil funciona
